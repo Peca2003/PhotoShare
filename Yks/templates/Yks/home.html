@@ -1,0 +1,45 @@
+{% extends "Yks/base.html" %}
+{% load bootstrap4 %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+    <div class="alert alert-success d-flex justify-content-between align-items-center">
+        <p class="mb-0">Вы вошли как <strong>{{ user.username }}</strong></p>
+        <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Выход</a>
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        <p class="mb-0">
+            <a href="{% url 'login' %}" class="btn btn-primary btn-sm mr-2">Войти</a>
+            <a href="{% url 'register' %}" class="btn btn-primary btn-sm ml-2">Зарегистрироваться</a>
+        </p>
+    </div>
+{% endif %}
+    <div class="row">
+    <div class="col-md-8">
+      <h2>Последние фотографии</h2>
+      {% for photo in photos %}
+        <div class="card mb-3">
+          <img src="{{ photo.image.url }}" class="card-img-top" alt="{{ photo.description }}">
+          <div class="card-body">
+            <h5 class="card-title">{{ photo.description }}</h5>
+            <p class="card-text">Автор: {{ photo.user.username }}</p>
+            <p class="card-text">Лайки: {{ photo.likes }} | Дизлайки: {{ photo.dislikes }}</p>
+          </div>
+        </div>
+      {% empty %}
+        <p>Нет доступных фотографий.</p>
+      {% endfor %}
+    </div>
+    <div class="col-md-4">
+      <h2>Популярные пользователи</h2>
+      <ul class="list-group">
+        {% for user in popular_users %}
+          <li class="list-group-item">{{ user.username }}</li>
+        {% empty %}
+          <li class="list-group-item">Нет популярных пользователей.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endblock %}
