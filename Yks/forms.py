@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
+from .models import Photo
 
 
 class RegistrationForm(UserCreationForm):
@@ -13,3 +14,9 @@ class RegistrationForm(UserCreationForm):
 
 class UserLoginForm(AuthenticationForm):
     pass
+
+
+class PhotoUploadForm(forms.ModelForm):
+    class Meta:
+        model = Photo
+        fields = ['image', 'description']

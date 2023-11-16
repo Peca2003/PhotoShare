@@ -1,12 +1,15 @@
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
 from django.db.models import Count
+
+from .forms import RegistrationForm, UserLoginForm, PhotoUploadForm
 from .models import Photo, UserProfile
-from .forms import RegistrationForm, UserLoginForm
-from django.contrib.auth.views import LoginView
 
 
 def home(request):
-    # Получаем последние фотографии
+    # Получаем последние фотографии с подсчетом лайков и дизлайков для каждой фотографии
     latest_photos = Photo.objects.annotate(num_likes=Count('likes'), num_dislikes=Count('dislikes')).order_by(
         '-created_at')[:10]
 
@@ -26,13 +29,31 @@ def register(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('login')  # Перенаправляем пользователя на страницу входа после успешной регистрации
+            return redirect('login')
     else:
         form = RegistrationForm()
-    return render(request, 'registrations/register.html', {'form': form})
+    return render(request, 'registration/register.html', {'form': form})
 
 
 class CustomLoginView(LoginView):
-    template_name = 'registrations/login.html'  # Путь к шаблону для страницы авторизации
+    template_name = 'registration/login.html'
     authentication_form = UserLoginForm
 
+
+@login_required
+def upload_photo(request):
+    if request.method == 'POST':
+        form = PhotoUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            photo = form.save(commit=False)
+            photo.user = request.user
+            photo.save()
+            return redirect('home')
+    else:
+        form = PhotoUploadForm()
+    return render(request, 'Yks/upload_photo.html', {'form': form})
+
+
+def user_logout(request):
+    logout(request)
+    return redirect('home')
