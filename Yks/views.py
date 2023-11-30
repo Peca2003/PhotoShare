@@ -3,9 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
 from django.db.models import Count
-
+from django.contrib.auth.models import User
+from .forms import UserProfileForm
 from .forms import RegistrationForm, UserLoginForm, PhotoUploadForm
 from .models import Photo, UserProfile
+from django.http import JsonResponse
 
 
 def home(request):
@@ -52,6 +54,25 @@ def upload_photo(request):
     else:
         form = PhotoUploadForm()
     return render(request, 'Yks/upload_photo.html', {'form': form})
+
+
+def profile(request, username):
+    user = User.objects.get(username=username)
+    return render(request, 'Yks/profile.html', {'user': user})
+
+@login_required
+def edit_profile(request):
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
+        if form.is_valid():
+            form.save()
+            return redirect('edit_profile')
+    else:
+        form = UserProfileForm(instance=user_profile)
+
+    return render(request, 'Yks/edit_profile.html', {'form': form})
 
 
 def user_logout(request):
