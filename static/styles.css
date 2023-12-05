@@ -1,0 +1,25 @@
+.profile-container {
+  text-align: center;
+  margin: 20px auto;
+  max-width: 600px;
+}
+
+.avatar-container {
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  padding: 10px;
+  display: inline-block;
+}
+
+.avatar {
+  width: 400px;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.btn-edit-profile {
+  display: block;
+  margin: 10px auto;
+  max-width: 280px;
+}
