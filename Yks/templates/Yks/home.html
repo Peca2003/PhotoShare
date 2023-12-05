@@ -1,0 +1,82 @@
+{% extends 'Yks/base.html' %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+        <div class="alert alert-success d-flex justify-content-between align-items-center">
+            <p class="mb-0">Вы вошли как <strong>{{ user.username }}</strong></p>
+            <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Выход</a>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p class="mb-0">
+                <a href="{% url 'login' %}" class="btn btn-primary">Войти</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">Зарегистрироваться</a>
+            </p>
+        </div>
+    {% endif %}
+
+  <div class="container mt-5">
+  {% if user.is_authenticated %}
+      <a href="{% url 'upload_photo' %}" class="btn btn-primary">Загрузить фотографию</a>
+      <a href="{% url 'profile' user.username %}" class="btn btn-secondary">Мой профиль</a>
+    {% endif %}
+      <div class="row">
+      <div class="col-md-8">
+        <h2>Последние фотографии</h2>
+        {% for photo in photos %}
+          <div class="card mb-3">
+            <img src="{{ photo.image.url }}" class="card-img-top" alt="{{ photo.description }}">
+            <div class="card-body">
+              <h5 class="card-title">{{ photo.description }}</h5>
+              <p class="card-text">Автор: {{ photo.user.username }}</p>
+                <p>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+                  <a href="{% url 'like_photo' photo.id %}">
+                    <i class="fas fa-thumbs-up"></i>
+                  </a>
+                  <span id="likes_count_{{ photo.id }}">{{ photo.likes.count }}</span>
+
+                  <a href="{% url 'dislike_photo' photo.id %}">
+                    <i class="fas fa-thumbs-down"></i>
+                  </a>
+                  <span id="dislikes_count_{{ photo.id }}">{{ photo.dislikes.count }}</span>
+                </p>
+
+                <br>
+                <hr>
+                <h2 class="display-6">Комментарии</h2>
+                <br>
+                {% if not photo.comments.all %}
+                    Комментарии отсутствуют
+
+                {% else %}
+                    {% for comment in photo.comments.all %}
+                        <strong> {{ comment.name }} </strong>
+                        <p> {{ comment.body }} </p>
+                        <p><small>{{ comment.date_added }}</small></p>
+                        <hr>
+                    {% endfor %}
+                {% endif %}
+
+                <p><a class="btn btn-primary" href="{% url 'add_comment' photo.id %}">Комментировать</a></p>
+            </div>
+          </div>
+        {% empty %}
+          <p>Нет доступных фотографий.</p>
+        {% endfor %}
+      </div>
+      <div class="col-md-4">
+        <h2>Популярные пользователи</h2>
+        <ul class="list-group">
+          {% for user in popular_users %}
+            <li class="list-group-item">{{ user.username }}</li>
+          {% empty %}
+            <li class="list-group-item">Нет популярных пользователей.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}
