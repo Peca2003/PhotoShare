@@ -1,7 +1,7 @@
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Count
 from django.contrib.auth.models import User
 from .forms import UserProfileForm, RegistrationForm, UserLoginForm, PhotoUploadForm, CommentForm
@@ -12,17 +12,12 @@ from datetime import datetime
 def home(request):
     # Получаем последние фотографии с подсчетом лайков и дизлайков для каждой фотографии
     latest_photos = Photo.objects.annotate(num_likes=Count('likes'), num_dislikes=Count('dislikes')).order_by(
-        '-created_at')[:10]
-
+        '-created_at')
     # Получаем популярных пользователей (пример: первые 5 пользователей с наибольшим количеством лайков)
     popular_users = UserProfile.objects.annotate(num_likes=Count('user__photo__likes')).order_by('-num_likes')[:5]
 
-    context = {
-        'photos': latest_photos,
-        'popular_users': popular_users,
-    }
 
-    return render(request, 'Yks/home.html', context)
+    return render(request, 'Yks/home.html', {'photos': latest_photos, 'popular_users': popular_users})
 
 
 def register(request):
@@ -54,10 +49,12 @@ def upload_photo(request):
         form = PhotoUploadForm()
     return render(request, 'Yks/upload_photo.html', {'form': form})
 
-
+@login_required
 def profile(request, username):
-    user = User.objects.get(username=username)
-    return render(request, 'Yks/profile.html', {'user': user})
+    user = get_object_or_404(User, username=username)
+    user_profile, created = UserProfile.objects.get_or_create(user=user)
+    is_owner = user == request.user
+    return render(request, 'Yks/profile.html', {'user': user, 'user_profile': user_profile, 'is_owner': is_owner})
 
 @login_required
 def edit_profile(request):
@@ -67,7 +64,7 @@ def edit_profile(request):
         form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
         if form.is_valid():
             form.save()
-            return redirect('edit_profile')
+            return redirect('profile', username=request.user.username)
     else:
         form = UserProfileForm(instance=user_profile)
 
@@ -120,6 +117,13 @@ def add_comment(request, photo_id):
         'form': form
     }
     return render(request, 'Yks/add_comment.html', context)
+
+@login_required
+def delete_photo(request, photo_id):
+    photo = get_object_or_404(Photo, id=photo_id, user=request.user)
+    if photo.user == request.user:
+        photo.delete()
+    return redirect('home')
 
 def user_logout(request):
     logout(request)

@@ -7,7 +7,7 @@
 {% endblock page_header %}
 
 {% block content %}
-<div class="profile-container">
+<div class="profile-container text-center">
     <div class="avatar-container">
       {% if user.userprofile.avatar %}
     <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
@@ -21,6 +21,10 @@
       {% else %}
         <p>О себе: Нет информации</p>
       {% endif %}
+
+    {% if is_owner %}
+        <a href="{% url 'edit_profile' %}" class="btn btn-primary btn-edit-profile">Редактировать профиль</a>
+    {% endif %}
+    <a href="{% url 'home' %}" class="btn btn-secondary">На главную</a>
 </div>
-  <a href="{% url 'edit_profile' %}" class="btn btn-primary btn-edit-profile">Редактировать профиль</a>
 {% endblock %}

@@ -8,6 +8,9 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['bio', 'avatar']
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 3}),
+        }
 
 class RegistrationForm(UserCreationForm):
     email = forms.EmailField()
