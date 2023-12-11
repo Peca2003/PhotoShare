@@ -10,13 +10,13 @@
 
 2. Создание виртуального окружения
 
-  Открываем проект в PyCharm.
+   Открываем проект в PyCharm.
   
-  Создаем виртуальное окружение:   `python3 -m venv venv`
+   Создаем виртуальное окружение:   `python3 -m venv venv`
   
-  Активизируем виртуальную среду:
-  для MacOS и Linux - `source venv/bin/activate`
-  для Windows - `venv/Scripts/activate`
+   Активизируем виртуальную среду:
+   для MacOS и Linux - `source venv/bin/activate`
+   для Windows - `venv/Scripts/activate`
 
 3. Установка зависимостей
 
